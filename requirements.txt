@@ -1,0 +1,5 @@
+duckdb
+anthropic
+streamlit
+pandas
+python-dotenv
