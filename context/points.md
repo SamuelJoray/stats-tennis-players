@@ -1,198 +1,161 @@
-# TABLE points -- notes on the `1st` and `2nd` columns
+# Shot codes: columns `1st` and `2nd` of table `points`
 
-The `1st` and `2nd` columns encode the serve and rally in a shot-by-shot
-notation from the Match Charting Project. Each character/token maps to a
-shot type, direction, or outcome.
+`1st` and `2nd` hold one point each, written as a string in the Match Charting Project
+notation. Every shot is coded, including the serve. Read a code left to right:
+serve → return → rally shots → how the point ended.
 
-GENERAL PRINCIPLES
+## Which column holds the point
 
-Every individual shot, including serves, is coded.
-Numbers are used to indicate direction and depth, while letters are used to specific shot types (e.g. "f" stands for "forehand") and error types ("n" stands for "net").  
-A few symbols are used for other purposes, such as types of errors (e.g. "@" means "unforced error" and "+" indicates an approach shot).
+- First serve **in**: the whole point (serve + rally + ending) is in `1st`. `2nd` is empty.
+- First serve **fault**: `1st` holds only that serve (direction + fault type). The second serve
+  and the rest of the point are in `2nd`.
+- Double fault: `1st` and `2nd` each hold a faulted serve.
 
-If the first serve goes in, the entire point is coded in the "1st" cell. 
-If the first serve goes out, only the first serve (its direction and error type) is entered in the "1st" cell.  Then the 2nd serve and rally are entered in the "2nd" cell.
+Examples:
+- `1st = 6f27b1*`: serve down the T in, forehand return, backhand winner. `2nd` empty.
+- `1st = 5d`, `2nd = 4s39b3b1w@`: first serve body, deep (fault); second serve wide in,
+  then a rally ending in an unforced error wide.
 
-See the two example points shown below.  In the first point, the first serve lands in ("6") and the ensuing rally ("f27b1*") is entered immediately after.
-In the second point, the first serve is a fault ("5d").  The second serve lands in ("4") and the rally ("s39b3b1w@") is entered along with it in the "2nd" column.
-Keep reading to learn what all these numbers, letters, and symbols actually mean! 
+## Who hit which shot
 
-SERVES
+Shots alternate between the players: shot 1 = serve (server), shot 2 = return (returner),
+shot 3 = server, shot 4 = returner, and so on. Odd-numbered shots are the server's,
+even-numbered shots the returner's. The last shot's hitter won the point if it ends in `*`
+(winner) and lost it if it ends in `@` or `#` (error). Lets (`c`) and the modifiers listed below
+are not shots.
+For who won the point, the `PtWinner` column is authoritative. Use the codes to know *how*.
 
-For each serve, use a number to indicate direction:
-Direction: 4 = out wide, 5 = body, and 6 = down the T. (These numbers are the same in both the ad and deuce courts.)
-The number 0 (zero) can be used if you don't know the direction.
+## Serves
 
-If the serve is a fault, a lowercase letter to indicate the type of fault. There are five types of faults:
-n = net (anything that goes into the net, including net cords that are not lets)
-w = wide (in either direction)
-d = deep
-x = both wide and deep
-g = foot faults
-You may also use the letter 'e' to designate an unknown type of fault (for instance, if you didn't see it, or the TV camera cut away).
-In rare cases when players shank a serve, use "!" to indicate a shank, rather than the letter to indicate the type of error.
+Serve direction (the same in the deuce and ad courts):
+- `4` = out wide, `5` = body, `6` = down the T, `0` = unknown.
 
-When the server commits a time violation and loses his first serve, the code is 'V' (uppercase).
+Fault types (lowercase, placed right after the direction):
+- `n` = net (including net cords that are not lets)
+- `w` = wide (either side)
+- `d` = deep
+- `x` = wide and deep
+- `g` = foot fault
+- `e` = fault of unknown type
+- `!` = shanked serve (used instead of a fault letter)
 
-Finally, while this is not necessary, you may record let serves.  The letter for this is "c" and it can be repeated as many times as there are lets.  
+Other serve codes:
+- `c` = let, placed before the direction and repeated once per let (`cc4e` = two lets,
+  then a wide serve that is a fault of unknown type).
+- `+` right after the direction = serve-and-volley attempt, whether the serve went in or not
+  (`4+w` = wide serve-and-volley attempt, fault wide).
+- `V` (uppercase) = time violation costing the server his first serve (in `1st`).
 
-EXAMPLES
-6 = a serve down the T that lands in the box.
-4 = a wide serve that lands in the box
-6x = a serve down the T that is both wide and deep.
-5d = a body serve that lands deep
-cc4e = two lets, followed by a wide serve that is out, but you don't know in which direction.
+Serve examples: `6` = T serve in; `4` = wide serve in; `6x` = T serve, fault wide and deep;
+`5d` = body serve, fault deep.
 
-There is also an optional code ("+") to indicate serve-and-volley attempts.  This can be used whether or not the serve goes in.
-For example, a serve-and-volley attempt on which a wide serve lands deep would be coded as "4+w".
-If the serve lands in, start with the direction and the plus sign, then follow with the rally code, as shown below.
+## Points that end on the serve or the return
 
-SERVE OUTCOMES
+- Ace: serve + `*` (`5*` = body serve ace).
+- Unreturnable: serve + `#` (`6#` = T serve the returner touched but could not return;
+  includes returns not fully struck, shanked, not reaching the net, or wildly missed).
+- Return forced error: serve + return shot + `#` (`6f#`).
+- Return unforced error: serve + return shot + error type + `@` (`6f2d@`).
 
-There are four categories for points that never progress past the serve:
+## Rally shots
 
-Aces. Add a * to the serve notation.  For instance, "5*" denotes a body serve ace.
-Unreturnables. Same as aces, only use a #.  So "6#" is a serve down the T that the other player touches but cannot return.  (More on this in a moment.)
-Forced errors.  Code the return as shown below (in 'Rally Sequence') along with the forced error notation ('#').   Example: 6f#
-Unforced errors: Code the return as shown below, along with the unforced error notation ('@').  Example: 6f2d@
+Each shot after the serve is a shot-type letter followed by a direction digit.
+Exceptions: the return has an extra depth digit, and the final error shot has extra codes
+(see "How the point ended"). Direction and depth are optional, so they may be missing.
 
-As a general rule, "unreturnables" are points where the returner fails to get a full racquet on the ball (including shanks), fails to get the return all the way to the net, or wildly misses.
-All other returns are forced or unforced errors. 
-Differentiating between forced and unforced errors on the service return will always be a prickly subject. 
-Very generally speaking, first-serve return errors are usually forced, and second-serve return errors are often unforced.
-However, especially in the men's game, many second-serve return errors are forced.
+Shot types (forehand / backhand):
+| Shot | Forehand | Backhand |
+|---|---|---|
+| Groundstroke (no slices or chips) | `f` | `b` |
+| Slice (incl. defensive chips, not drop shots) | `r` | `s` |
+| Volley | `v` | `z` |
+| Overhead / smash | `o` | `p` |
+| Drop shot | `u` | `y` |
+| Lob | `l` | `m` |
+| Half-volley | `h` | `i` |
+| Swinging volley | `j` | `k` |
 
-RALLY SEQUENCE
+Also: `t` = trick shot (behind the back, tweener, etc.), `q` = unknown shot.
 
-Each shot after the serve (with the exception of service returns and point-ending "forced" errors--more on that in a minute) requires two characters:
- a letter to indicate the type of shot and a number for the direction.
+Direction (where the ball crossed, or would have crossed, the opponent's baseline):
+- `1` = to a right-hander's forehand side (= a left-hander's backhand side)
+- `2` = down the middle (roughly the central 40% of the court)
+- `3` = to a right-hander's backhand side (= a left-hander's forehand side)
+- `0` = unknown
 
-Here are the letters to indicate shot types.  Note that for most types of shots, there are different letter codes for the forehand and backhand sides.
+Directions are relative to a right-handed *receiver*, not crosscourt / down the line.
+Between two right-handers: `f1` = crosscourt forehand, `f3` = forehand down the line,
+`b3` = crosscourt backhand, `b1` = backhand down the line. Swap for left-handers.
 
-f = forehand groundstroke (excluding slices, chips, etc.)
-b = backhand groundstroke (excluding slices, chips, etc.)
+Return depth (third character of the return only, optional):
+- `7` = lands inside the service boxes
+- `8` = behind the service line, closer to the service line than the baseline
+- `9` = closer to the baseline than the service line
+- `0` = unknown depth
+Example: `f37` = forehand return to a right-hander's backhand side, landing in the service box.
 
-r = forehand slice (including defensive chips, but not drop shots)
-s = backhand slice (including defensive chips, but not drop shots)
+Rally examples:
+- `b3s3b1f1v2` = backhand crosscourt, backhand slice crosscourt, backhand down the line,
+  forehand crosscourt, volley down the middle (all right-handers).
+- `fbh` = forehand, backhand, half-volley, without directions (valid).
 
-v = forehand volley
-z = backhand volley
-(see below for an optional additional code to indicate a stop volley/drop volley)
+## How the point ended
 
-o = standard overhead/smash
-p = "backhand" overhead/smash
+- Winner: last shot + `*` (`f3*` = forehand winner to a right-hander's backhand side).
+- Error: the failed shot is included, then an error type and `@` or `#`:
+  - error types: `n` = net, `w` = wide, `d` = deep, `x` = wide and deep, `!` = shank, `e` = unknown
+  - `@` = unforced error, `#` = forced error
+  - Full form: shot type, direction, error type, `@`/`#` (`f1n@`).
+  - Unforced errors always have shot type + error type + `@`; direction is optional.
+  - Forced errors may be only shot type + `#` (`b#`), or fuller (`b3d#`).
 
-u = forehand drop shot
-y = backhand drop shot
+Full example: `5f2f1f1v2n@` = body serve in, forehand down the middle, forehand crosscourt,
+forehand crosscourt, volley down the middle into the net, unforced error.
 
-l = forehand lob
-m = backhand lob
+## Optional modifiers (placed right after the shot letter)
 
-h = forehand half-volley
-i = backhand half-volley
+These are optional, so their absence does NOT mean the situation did not happen.
+- `+` = approach shot (`b+2` = backhand approach down the middle). After a serve direction,
+  `+` means serve-and-volley (`4+b27v1*`: wide serve, server rushes the net, short return
+  down the middle, volley winner).
+- `-` = shot hit at the net (for shots normally hit from the baseline): `f-1`.
+- `=` = shot hit from the baseline (for shots normally hit at the net): `o=2`.
+- `;` = ball clipped the net cord (`f;1*` = forehand winner that clipped the net).
+- `^` = stop volley / drop volley (`z^2*` = backhand stop volley winner down the middle).
 
-j = forehand swinging volley
-k = backhand swinging volley
+By default, volleys, half-volleys, swinging volleys and smashes are assumed to be at the net;
+groundstrokes, slices, drop shots, lobs and trick shots from the baseline.
 
-t = all trick shots, including behind-the-back, between-the-legs, and "tweeners."
+## Whole-point codes (uppercase, alone in `1st`)
 
-q = any unknown shot
+- `S` = point not charted, awarded to the server
+- `R` = point not charted, awarded to the returner
+- `P` = point penalty against the server
+- `Q` = point penalty against the returner
 
-Here are the numbers to indicate direction:
-1 = to a right-hander's forehand side / left-hander's backhand side
-2 = down the middle of the court
-3 = to a right-hander's backhand side / left-hander's forehand side
+These rows have no shot information. Exclude them from shot-level statistics.
 
-"Down the middle" represents a little more than one third of the court.  While we shouldn't worry about excessive precision,
- it may be helpful to think of "2" as representing the middle 40% of the court, while 1 and 3 each represent an outer 30%. 
- It may be easier to think of a "down the middle" shot as a typical rallying shot, even though it may require the other player to move a step or two in either direction.
+## Other codes
 
-In general, shot direction should indicate the part of the court where the shot crossed (or would have crossed) the opponent's baseline. For instance, if player A hits
-a wide serve in the deuce court and player B hits a crosscourt return, the ball might bounce in the middle of the court, but cross the baseline in the corner. In a case
-like this, the direction is 1 (to a right-hander's forehand), not a 2 (down the middle).
+- `C` at the end of a rally = a player stopped play to challenge and was wrong
+  (`6b29C` = T serve, backhand return deep down the middle, play stopped for an incorrect
+  challenge). If the challenge was correct, the shot is coded as a normal error instead.
+- Replayed points are not recorded; challenges that changed the result are already reflected.
 
-As with serves, you can also use the number zero (0) to indicate unknown direction.
+## `Notes` column
 
-Shot direction is not required, and when you first start charting matches, I recommend you stick with the shot-type codes.  
-Eventually, work on adding the shot direction, as it opens up a much wider range of analysis.
+Free text for anything not covered by the codes (challenges, medical timeouts, rain delays,
+coaching, time-violation warnings). Usually empty. Events between points are noted on the
+point *before* the event.
 
-EXAMPLES
-f1 = forehand to a (righty's) forehand side; this is the typical crosscourt forehand
-s2 = backhand slice down the middle
-u3 = forehand drop shot to a (righty) opponent's backhand side
-b3s3b1f1v2 = (assuming both players are righties) backhand crosscourt, backhand slice crosscourt, backhand down the line, forehand crosscourt, volley down the middle.
-fbh = forehand, backhand, half-volley, all without shot direction specified.  As noted, this is acceptable.
+## Tips for SQL queries
 
-RALLY ENDINGS
-
-Winners: Code the rally as shown above, and add a * (star/asterisk) to indicate a winner.
-example: f3* = forehand winner down the line
-
-Errors: Code the rally as shown above, *including* the shot that the loser tried to make. 
-Add one of the error types (same as those for serves: n = net, w = wide, d = deep, x = wide and deep, ! = shank,  e = unknown) to the end of the final shot.
-Finally, add one of these two characters at the end: @ = unforced error, and # = forced error.
-
-In the case of a rally-ending error, you can use up to four keystrokes to describe the error shot:
-shot-type (e.g. 'f') / direction (e.g. '1') / error type (e.g. 'n') / forced or unforced (e.g. '#')
-
-For unforced errors, shot-type, error type, and the unforced symbol ("@") are required; direction (as on other shots after the serve) is optional.
-For forced errors, only shot-type and the forced error symbol ("#") are required.  For example, "b#" is acceptable.  If you wish to add more information (e.g. "b3d#"), that's fine too.
-
-Example: f2f1f1v2n@ = forehand down the middle, forehand crosscourt, forehand crosscourt, volley down the middle into the net (unforced error).
-
-Remember that the rally shot sequence is entered in the same cell as the serve that landed in, so the full entry will look like this:
-5f2f1f1v2n@ = body serve, followed by the rally described above.
-
-[OPTIONAL] SERVE RETURN DEPTH
-
-Return depth is very important, so when service returns are in, we add one additional character to indicate depth.
-7 = within the service boxes. 8 = behind the service line, but closer to the service line than the baseline.  9 = closer to the baseline than the service line.
-
-Thus, service returns require three keystrokes: (1) the type of shot, (2) the direction of the shot, and (3) the depth of the shot.
-
-Example: f37 = forehand service return to a (righty) opponent's backhand side that lands in front of the service line.
-
-Be careful not to stop and think about this one--the rally will pass you by!  You can always use 0 (zero) for unknown depth or omit a number for depth altogether.
-Like shot direction, this is optional, but really, really nice to have!
-
-[OPTIONAL] COURT POSITION, ETC
-
-For the most part, the shot codes indicate court position.  If a player must return a drop shot, or hits a volley, swinging volley, or smash,
-he or she probably came to the net.  If not, probably not. However, we may want to be more precise.
-
-Approach shots: To indicate that a shot was an approach shot, add a plus sign ("+") immediately after the shot code.  For instance, "b+2" is a backhand approach down the middle.
-This not only helps us identify net approaches, but it also allows us to identify passing shots and passing shot attempts.
-As mentioned above, the plus sign also indicates serve-and-volley attempts, so for instance, "4+b27v1*" is a point in which the serve was wide, the server followed it into the net, the 
-returner hit a shallow reply, and the server finished the point with a volley winner.
-
-Baseline/net position: Volleys, half-volleys, swinging volleys, and smashes are assumed to have taken place at the net.  Groundstrokes, slices, drop shots, lobs, and trick shots are
-assumed to be baseline shots. Use "-" and "=" immediately after the shot code to indicate otherwise.  "-" means that a shot took place at the net, and "=" that it took place at the baseline.
-Examples: "f-1" = forehand to a (righty) opponent's forehand that took place near the net; "o=2" is a smash down the middle, hit from near the baseline .
-
-Net cords: A semi-colon can be added to any shot to indicate that it clipped the net cord.  For example, "f;1*" is a forehand winner to a (righty's) forehand side that hit the net cord.
-
-Stop volleys/drop volleys: If a volley is hit so that it drops close to the net (like a drop shot), use the additional code "^". For instance, "z^2*" is a backhand ("z") stop volley ("^") down the middle ("2") winner ("*").
-
-As with the other optional parts of this system, your chart can be analyzed without the use of these four codes.  Court position is great to have, but it's the lowest priority of anything discussed up to this point.
-
-UNUSUAL SITUATIONS
-
-If for some reason you miss a point or two, that's ok.  Entering 'S' in the 1st serve column will give that point to the server; 'R' gives the point to the returner.  
-If you miss several points and are unsure of the sequence … go ahead and guess.  Add a note in column P to acknowledge the missing information.
-
-One uncommon event of importance is the point penalty.  If, for whatever reason, a point penalty is levied on either player, use a single character code in the cell for first serve.
-P = point penalty against the server, and Q = point penalty against the returner. 
-
-For now, this system ignores challenges and other overrules.  If a point is replayed from the beginning, simply delete the uncounted point and start over.
- If a challenge affects the result of a point, adjust what you've recorded to reflect the result of the challenge.
-
-Exception: When a player stops play to challenge or check a mark, there are two possibilities:
-If she is right--that is, she challenges and the ball was out--code the shot as you otherwise would, as a forced or unforced error.
-However, if she is wrong, use the code 'C' to indicate the incorrect decision to stop the rally. For instance:
-"6b29C" means "serve down the T, backhand deep up the middle, play stopped for a challenge [which proved incorrect]"
-
-Finally, there is a 'Notes' column available for your use.  For now, that's a catchall for everything that doesn't fit elsewhere. 
-Challenges, medical timeouts, rain delays, on-court coaching, time violation warnings--anything you think is worthy of mention, put it here.  
-There's no pre-set format, but please avoid using commas in this column.
-
-As a general rule, if something happens between points (say, a medical time out, which follows the end of a game), record it in the notes column of the *preceding* point.
+- Characters that encode the outcome are at the END of the code: `*` winner,
+  `#` forced error or unreturnable, `@` unforced error.
+- Digits mean different things by position: `4`/`5`/`6` = serve direction (first shot only),
+  `1`/`2`/`3` = rally direction, `7`/`8`/`9` = return depth.
+- Use the column holding the point that was actually played: `2nd` if it is non-empty,
+  otherwise `1st`, i.e. `COALESCE(NULLIF("2nd", ''), "1st")`.
+- Quote the column names: `"1st"`, `"2nd"` (they start with a digit).
+- Optional fields (direction, depth, modifiers) are missing in some charts, so results
+  based on them only cover the points where they were recorded.

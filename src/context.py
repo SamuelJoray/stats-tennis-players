@@ -11,13 +11,17 @@ import os
 CONTEXT_DIR = "context"
 
 
-def build_context_text() -> str:
+def build_context_text(files: list[str] | None = None) -> str:
+    """Concatenates context/*.md files. `files` restricts which filenames are
+    included (e.g. ["points.md"]); None (the default) means "all of them"."""
     if not os.path.isdir(CONTEXT_DIR):
         return ""
 
     sections = []
     for filename in sorted(os.listdir(CONTEXT_DIR)):
         if not filename.endswith(".md"):
+            continue
+        if files is not None and filename not in files:
             continue
         path = os.path.join(CONTEXT_DIR, filename)
         with open(path, encoding="utf-8") as f:

@@ -45,7 +45,8 @@ REVISE: <specific, actionable feedback for what to fix>
 
 
 def _call_planner(client: anthropic.Anthropic, question: str, schema: str, context: str) -> tuple:
-    system = PLANNER_SYSTEM.format(schema=schema, context=context or "(none)")
+    system_text = PLANNER_SYSTEM.format(schema=schema, context=context or "(none)")
+    system = [{"type": "text", "text": system_text, "cache_control": {"type": "ephemeral"}}]
     response = client.messages.create(
         model=MODEL,
         max_tokens=2048,
@@ -85,7 +86,7 @@ def run_multi_agent(question: str) -> VariantResult:
     num_llm_calls += 1
     total_tokens += tokens
 
-    sql_agent = TennisAgent(use_context=True)
+    sql_agent = TennisAgent()
     result = sql_agent.ask(f"{question}\n\nA colleague suggested this plan:\n{plan}")
     sql_log += result["sql_log"]
     num_llm_calls += result["num_llm_calls"]

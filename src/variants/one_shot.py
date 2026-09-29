@@ -37,7 +37,8 @@ direct natural-language answer citing the actual numbers. If the query errored, 
 
 
 def _generate_sql(client: anthropic.Anthropic, question: str, schema: str, context: str) -> str:
-    system = SQL_SYSTEM_TEMPLATE.format(schema=schema, context=context or "(none)")
+    system_text = SQL_SYSTEM_TEMPLATE.format(schema=schema, context=context or "(none)")
+    system = [{"type": "text", "text": system_text, "cache_control": {"type": "ephemeral"}}]
     response = client.messages.create(
         model=MODEL,
         max_tokens=4096,

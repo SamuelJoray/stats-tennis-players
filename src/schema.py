@@ -26,7 +26,7 @@ def build_schema_text(con: duckdb.DuckDBPyConnection) -> str:
             if col_name in SAMPLE_VALUE_COLUMNS:
                 samples = con.execute(
                     f'SELECT DISTINCT "{col_name}" FROM {table_name} '
-                    f'WHERE "{col_name}" IS NOT NULL LIMIT {MAX_SAMPLE_VALUES}'
+                    f'WHERE "{col_name}" IS NOT NULL ORDER BY 1 LIMIT {MAX_SAMPLE_VALUES}'
                 ).fetchall()
                 values = ", ".join(repr(s[0]) for s in samples)
                 line += f" e.g. {values}"

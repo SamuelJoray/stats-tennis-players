@@ -16,7 +16,7 @@ from src.db import get_connection, run_query
 from src.schema import build_schema_text
 
 MODEL = "claude-haiku-4-5-20251001"
-MAX_TOOL_CALLS = 5
+MAX_TOOL_CALLS = 8
 
 SYSTEM_TEMPLATE = """You are a tennis stats analyst assistant. You answer questions about \
 professional tennis matches by writing and running DuckDB SQL queries via the `run_sql` tool \
@@ -52,12 +52,21 @@ RUN_SQL_TOOL = {
 
 
 class TennisAgent:
-    def __init__(self, use_context: bool = True):
+    def __init__(self, context_files: list[str] | None = None, model: str = MODEL):
+        """`context_files` selects which context/*.md files to inject: None
+        (the default) means all of them, [] means none, or pass a specific
+        list (e.g. ["points.md"]) to restrict it. `model` overrides the
+        module-level default for one-off comparisons without changing the
+        model the rest of the app uses."""
         self.client = anthropic.Anthropic()
         self.con = get_connection()
+        self.model = model
         schema = build_schema_text(self.con)
-        context = build_context_text() if use_context else ""
-        self.system = SYSTEM_TEMPLATE.format(schema=schema, context=context or "(none yet)")
+        context = build_context_text(context_files)
+        system_text = SYSTEM_TEMPLATE.format(schema=schema, context=context or "(none yet)")
+        # Marked cacheable: this prompt is resent unchanged on every tool-loop
+        # iteration for a question, and across every question in an eval run.
+        self.system = [{"type": "text", "text": system_text, "cache_control": {"type": "ephemeral"}}]
 
     def _execute_tool(self, sql: str):
         try:
@@ -82,7 +91,7 @@ class TennisAgent:
 
         for _ in range(MAX_TOOL_CALLS):
             response = self.client.messages.create(
-                model=MODEL,
+                model=self.model,
                 max_tokens=4096,
                 system=self.system,
                 tools=[RUN_SQL_TOOL],

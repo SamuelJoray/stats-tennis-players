@@ -3,7 +3,7 @@ tennis.duckdb
 __pycache__/
 *.pyc
 .venv/
-eval/results.csv
+eval/results*.csv
 context/image.png
 
 # Third-party cloned dataset (its own git repo, own license) -- not part of this project's source.
